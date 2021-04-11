@@ -36,16 +36,14 @@ const App = () => {
       },
     });
 
-    // console.log(result);
-
     setCode(result.outputFiles[0].text);
-
-    try {
-      eval(result.outputFiles[0].text);
-    } catch (err) {
-      alert(err);
-    }
   };
+
+  const html = `
+    <script>
+      ${code}
+    </script>
+  `;
 
   return (
     <div>
@@ -57,13 +55,12 @@ const App = () => {
         <button onClick={onClick}>Submit</button>
       </div>
       <pre>{code}</pre>
-      <iframe srcDoc={html} sandbox='' />
+      {/* prevent direct access between iFrame and parent document with sandbox="":
+      (downside: inside of the context of the iFrame you cannot use localStorage
+      and a couple other borwser features! ) */}
+      <iframe title='output' sandbox='allow-scripts' srcDoc={html} />
     </div>
   );
 };
-
-const html = `
-  <h1>Local HTML doc</h1>
-`;
 
 ReactDOM.render(<App />, document.querySelector('#root'));
