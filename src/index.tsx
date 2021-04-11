@@ -6,6 +6,7 @@ import { fetchPlugin } from './plugins/fetch-plugin';
 
 const App = () => {
   const ref = useRef<any>();
+  const iframe = useRef<any>();
   const [input, setInput] = useState('');
   const [code, setCode] = useState('');
 
@@ -36,13 +37,22 @@ const App = () => {
       },
     });
 
-    setCode(result.outputFiles[0].text);
+    // setCode(result.outputFiles[0].text);
+    iframe.current.contentWindow.postMessage(result.outputFiles[0].text, '*');
   };
 
   const html = `
-    <script>
-      ${code}
-    </script>
+    <html>
+      <head></head>
+      <body>
+        <div id="root"></div>
+        <script>
+          window.addEventListener('message', (e) => {
+            eval(event.data);
+          }, false)
+        </script>
+      </body>
+    </html>
   `;
 
   return (
@@ -58,7 +68,12 @@ const App = () => {
       {/* prevent direct access between iFrame and parent document with sandbox="":
       (downside: inside of the context of the iFrame you cannot use localStorage
       and a couple other borwser features! ) */}
-      <iframe title='output' sandbox='allow-scripts' srcDoc={html} />
+      <iframe
+        ref={iframe}
+        title='output'
+        sandbox='allow-scripts'
+        srcDoc={html}
+      />
     </div>
   );
 };
