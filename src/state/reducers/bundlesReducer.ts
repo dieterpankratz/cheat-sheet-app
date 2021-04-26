@@ -1,1 +1,1 @@
-// todo:
+export default 1;
